@@ -15,8 +15,10 @@ This is a repo for a microservice in rust that returns a random category from a 
 
 # How to test
 
-1. Run `cargo test`
-2. Run `cargo test -- --test-threads=1`
+1. Run `cargo test` for running all tests
+2. Run `cargo test -- --test-threads=1` for running all tests in a single thread
+3. Run `cargo test test_categorize_endpoint` for running a specific test called `test_categorize_endpoint`
+4. Run `cargo test test_categorize_object` for running a specific test called `test_categorize_object`
 
 # How to build
 

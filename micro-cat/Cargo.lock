@@ -1190,6 +1190,7 @@ dependencies = [
  "actix-web",
  "dotenv",
  "serde",
+ "serde_json",
  "sqlx",
  "tokio",
 ]

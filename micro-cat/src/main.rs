@@ -5,7 +5,7 @@ use sqlx::mysql::MySqlPool;
 use dotenv::dotenv;
 
 // Define our categories
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 enum Category {
     Technology,
     Entertainment,
@@ -146,4 +146,73 @@ async fn main() -> std::io::Result<()> {
     .bind("127.0.0.1:8081")?
     .run()
     .await
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use actix_web::{test, web, App};
+    use sqlx::mysql::MySqlPoolOptions;
+    use serde_json::json;
+    use dotenv::dotenv; // Importamos dotenv para cargar el archivo .env
+    use std::env; // Para acceder a las variables de entorno
+
+    #[actix_web::test]
+    async fn test_categorize_object() {
+        dotenv().ok(); // Carga el archivo .env
+        let (category, confidence) = categorize_object("computer");
+        assert_eq!(category, Category::Technology);
+        assert!((confidence - 0.9).abs() < f32::EPSILON);
+
+        let (category, confidence) = categorize_object("recipe");
+        assert_eq!(category, Category::Food);
+        assert!((confidence - 0.8).abs() < f32::EPSILON);
+
+        let (category, confidence) = categorize_object("unknown");
+        assert_eq!(category, Category::Technology);
+        assert!((confidence - 0.3).abs() < f32::EPSILON);
+    }
+
+    #[actix_web::test]
+    async fn test_categorize_endpoint() {
+        dotenv().ok(); // Carga el archivo .env
+
+        // Obtén la URL de conexión desde el archivo .env
+        let database_url = env::var("DATABASE_URL")
+            .expect("DATABASE_URL must be set in .env file");
+
+        // Conecta al pool de la base de datos usando la URL de conexión
+        let pool = MySqlPoolOptions::new()
+            .connect(&database_url)
+            .await
+            .expect("Failed to connect to the database");
+
+        let app_state = web::Data::new(AppState { db: pool });
+
+        let mut app = test::init_service(
+            App::new()
+                .app_data(app_state.clone())
+                .route("/categorize", web::post().to(categorize)),
+        )
+        .await;
+
+        // Simula una solicitud
+        let payload = json!({
+            "object": "computer"
+        });
+
+        let req = test::TestRequest::post()
+            .uri("/categorize")
+            .set_json(&payload)
+            .to_request();
+
+        let resp = test::call_service(&mut app, req).await;
+
+        assert!(resp.status().is_success());
+
+        let body: serde_json::Value = test::read_body_json(resp).await;
+        assert_eq!(body["object"], "computer");
+        assert_eq!(body["category"], "Technology");
+        assert_eq!(body["confidence"], 0.9);
+    }
 }
