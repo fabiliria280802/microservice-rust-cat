@@ -4,5 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-actix-web = "4.5.1"
+actix-web = "4.0"
 serde = { version = "1.0", features = ["derive"] }
+sqlx = { version = "0.7", features = ["runtime-tokio-native-tls", "mysql", "runtime-tokio", "macros", "chrono"] }
+tokio = { version = "1.0", features = ["full"] }
+dotenv = "0.15"
