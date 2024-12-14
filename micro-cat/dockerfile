@@ -1,0 +1,34 @@
+# Usa una imagen base con la última versión de Rust estable
+FROM rust:latest AS builder
+
+# Instala herramientas y dependencias del sistema en la etapa de compilación
+RUN apt-get update && apt-get install -y \
+    libmariadb-dev-compat libmariadb-dev pkg-config libssl-dev
+
+# Establece el directorio de trabajo
+WORKDIR /usr/src/app
+
+# Copia los archivos del proyecto
+COPY . .
+
+# Compila el proyecto en modo release
+RUN cargo build --release
+
+# Crear una imagen mínima para producción
+FROM debian:bookworm-slim
+
+# Instala las dependencias necesarias para ejecutar el binario
+RUN apt-get update && apt-get install -y \
+    libmariadb-dev-compat libmariadb-dev libssl3
+
+# Copia el binario compilado desde la imagen de compilación
+COPY --from=builder /usr/src/app/target/release/micro-cat /usr/local/bin/micro-cat
+
+# Copia el archivo .env
+COPY .env /usr/local/bin/.env
+
+# Exponer el puerto en el que corre el servicio
+EXPOSE 8081
+
+# Ejecutar el binario al iniciar el contenedor
+CMD ["micro-cat"]
