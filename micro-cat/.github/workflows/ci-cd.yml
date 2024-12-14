@@ -65,8 +65,14 @@ jobs:
       - name: Pull Docker Image
         run: docker pull ${{ secrets.DOCKER_USERNAME }}/micro-cat:latest
 
-      - name: Run Docker Container Locally
+      - name: Run Docker Container Locally for 5 Minutes
         run: |
           docker stop micro-cat || true
           docker rm micro-cat || true
           docker run --name micro-cat -d -p 8081:8081 --env-file .env ${{ secrets.DOCKER_USERNAME }}/micro-cat:latest
+          echo "Container running for 5 minutes..."
+          sleep 300 # Espera 5 minutos (300 segundos)
+          echo "Stopping container..."
+          docker stop micro-cat
+          docker rm micro-cat
+
