@@ -114,7 +114,7 @@ async fn categorize(
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
-    let database_url = std::env::var("DATABASE_URL")
+    let database_url = std::env::var("DATABASE_URL_LOCAL")
         .expect("DATABASE_URL must be set in .env file");
 
     let pool = MySqlPool::connect(&database_url)
@@ -179,7 +179,7 @@ mod tests {
         dotenv().ok(); // Carga el archivo .env
 
         // Obtén la URL de conexión desde el archivo .env
-        let database_url = env::var("DATABASE_URL")
+        let database_url = env::var("DATABASE_URL_LOCAL")
             .expect("DATABASE_URL must be set in .env file");
 
         // Conecta al pool de la base de datos usando la URL de conexión
