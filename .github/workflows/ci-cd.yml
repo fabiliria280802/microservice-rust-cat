@@ -63,9 +63,8 @@ jobs:
       # Run Docker container with timeout
       - name: Run Docker container with timeout
         run: |
-          echo "Using DATABASE_URL_DOCKER for Docker: ${{ secrets.DATABASE_URL_DOCKER }}"
-          timeout 300 docker run -p 8081:8081 --env DATABASE_URL_DOCKER=${{ secrets.DATABASE_URL_DOCKER }} micro-cat:latest
-
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL_DOCKER }}" > .env
+          timeout 300 docker run -p 8081:8081 --env-file .env micro-cat:latest
 
       # Verify Docker logs (optional)
       - name: Verify Docker logs
