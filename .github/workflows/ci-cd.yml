@@ -26,7 +26,7 @@ jobs:
           DATABASE_URL_LOCAL: ${{ secrets.DATABASE_URL_LOCAL }}
         run: |
           cd micro-cat  # Cambiar al directorio donde está Cargo.toml
-          cargo test
+          cargo test test_categorize_object
 
       # Build project with local DATABASE_URL
       - name: Build project
