@@ -22,13 +22,16 @@ jobs:
 
       # Run tests
       - name: Run tests
-        run: cargo test
+        run: |
+          cd micro-cat  # Cambiar al directorio donde está Cargo.toml
+          cargo test
 
       # Build project with local DATABASE_URL
       - name: Build project
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL_LOCAL }}
         run: |
+          cd micro-cat  # Cambiar al directorio donde está Cargo.toml
           echo "Using DATABASE_URL for build: $DATABASE_URL"
           cargo build --release
 
@@ -53,11 +56,12 @@ jobs:
         run: |
           docker build -t micro-cat:latest .
 
-      # Run Docker container
+      # Run Docker container with timeout
       - name: Run Docker container with timeout
         run: |
           echo "Using DATABASE_URL for Docker: ${{ secrets.DATABASE_URL_DOCKER }}"
           timeout 300 docker run -p 8081:8081 --env DATABASE_URL=${{ secrets.DATABASE_URL_DOCKER }} micro-cat:latest
+
 
       # Verify Docker logs (optional)
       - name: Verify Docker logs
