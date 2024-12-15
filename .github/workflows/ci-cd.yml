@@ -22,6 +22,8 @@ jobs:
 
       # Run tests
       - name: Run tests
+        env:
+          DATABASE_URL_LOCAL: ${{ secrets.DATABASE_URL_LOCAL }}
         run: |
           cd micro-cat  # Cambiar al directorio donde está Cargo.toml
           cargo test
