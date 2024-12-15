@@ -56,14 +56,15 @@ jobs:
       # Build Docker image
       - name: Build Docker image
         run: |
-         cd micro-cat
-          docker build -t micro-cat:latest .
+          cd micro-cat
+          echo "DATABASE_URL_DOCKER=${{ secrets.DATABASE_URL_DOCKER }}" > .env
+          docker build --no-cache -t micro-cat:latest .
 
       # Run Docker container with timeout
       - name: Run Docker container with timeout
         run: |
-          echo "Using DATABASE_URL for Docker: ${{ secrets.DATABASE_URL_DOCKER }}"
-          timeout 300 docker run -p 8081:8081 --env DATABASE_URL=${{ secrets.DATABASE_URL_DOCKER }} micro-cat:latest
+          echo "Using DATABASE_URL_DOCKER for Docker: ${{ secrets.DATABASE_URL_DOCKER }}"
+          timeout 300 docker run -p 8081:8081 --env DATABASE_URL_DOCKER=${{ secrets.DATABASE_URL_DOCKER }} micro-cat:latest
 
 
       # Verify Docker logs (optional)
